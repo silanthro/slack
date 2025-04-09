@@ -35,7 +35,8 @@ def send_message(content: str, channel: Optional[str] = None) -> str:
         If multiple channels are provided, selects the first
 
     Returns:
-        A string "Message sent"
+        If message is successful, returns "Message sent"
+        Otherwise, returns the error message as a string
 
     On mrkdwn syntax:
     _italic_ will produce italicized text
@@ -53,39 +54,35 @@ def send_message(content: str, channel: Optional[str] = None) -> str:
         > -> &gt;
     """
 
-    webhook = None
-    if isinstance(WEBHOOKS, str):
-        webhook = WEBHOOKS
-        if not webhook:
-            raise ValueError("SLACK_WEBHOOKS is empty.")
-    elif channel is None:
-        try:
+    try:
+        if channel is None:
             webhook = list(WEBHOOKS.values())[0]
-        except IndexError:
-            raise ValueError("SLACK_WEBHOOKS is empty or has no values.")
-    else:
-        webhook = WEBHOOKS.get(channel)
-        if webhook is None:
-            raise ValueError(f"No webhook configured for channel '{channel}' in SLACK_WEBHOOKS.")
+        else:
+            try:
+                webhook = WEBHOOKS[channel]
+            except KeyError:
+                return f'Channel "{channel}" either does not exist or is unavailable. Please pass a channel from the following available list {get_available_channels()}'
 
-    body = {
-        "blocks": [
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": content,
+        body = {
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": content,
+                    },
                 },
+            ],
+        }
+
+        requests.post(
+            webhook,
+            headers={
+                "Content-type": "application/json",
             },
-        ],
-    }
+            data=json.dumps(body),
+        )
 
-    requests.post(
-        webhook,
-        headers={
-            "Content-type": "application/json",
-        },
-        data=json.dumps(body),
-    )
-
-    return "Message sent"
+        return "Message sent"
+    except Exception as e:
+        return str(e)
