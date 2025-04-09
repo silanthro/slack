@@ -9,13 +9,20 @@ def _get_webhooks() -> dict:
     webhooks_str = os.environ.get("SLACK_WEBHOOKS")
     if not webhooks_str:
         raise ValueError("No webhooks provided via environment variable SLACK_WEBHOOKS")
-    if "{" in webhooks_str:
-        return json.loads(webhooks_str)
-    else:
-        return webhooks_str
+    return json.loads(webhooks_str)
 
 
 WEBHOOKS = _get_webhooks()
+
+
+def get_available_channels() -> list[str]:
+    """
+    Retrieve the list of available Slack channels
+
+    Returns:
+        A list of strings representing available Slack channels
+    """
+    return list(WEBHOOKS.keys())
 
 
 def send_message(content: str, channel: Optional[str] = None) -> str:
@@ -28,7 +35,8 @@ def send_message(content: str, channel: Optional[str] = None) -> str:
         If multiple channels are provided, selects the first
 
     Returns:
-        A string "Message sent"
+        If message is successful, returns "Message sent"
+        Otherwise, returns the error message as a string
 
     On mrkdwn syntax:
     _italic_ will produce italicized text
@@ -46,33 +54,35 @@ def send_message(content: str, channel: Optional[str] = None) -> str:
         > -> &gt;
     """
 
-    webhook = None
-    if channel is None:
-        if isinstance(WEBHOOKS, str):
-            webhook = WEBHOOKS
-        else:
+    try:
+        if channel is None:
             webhook = list(WEBHOOKS.values())[0]
-    else:
-        webhook = WEBHOOKS[channel]
+        else:
+            try:
+                webhook = WEBHOOKS[channel]
+            except KeyError:
+                return f'Channel "{channel}" either does not exist or is unavailable. Please pass a channel from the following available list {get_available_channels()}'
 
-    body = {
-        "blocks": [
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": content,
+        body = {
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": content,
+                    },
                 },
+            ],
+        }
+
+        requests.post(
+            webhook,
+            headers={
+                "Content-type": "application/json",
             },
-        ],
-    }
+            data=json.dumps(body),
+        )
 
-    requests.post(
-        webhook,
-        headers={
-            "Content-type": "application/json",
-        },
-        data=json.dumps(body),
-    )
-
-    return "Message sent"
+        return "Message sent"
+    except Exception as e:
+        return str(e)
