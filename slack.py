@@ -9,13 +9,20 @@ def _get_webhooks() -> dict:
     webhooks_str = os.environ.get("SLACK_WEBHOOKS")
     if not webhooks_str:
         raise ValueError("No webhooks provided via environment variable SLACK_WEBHOOKS")
-    if "{" in webhooks_str:
-        return json.loads(webhooks_str)
-    else:
-        return webhooks_str
+    return json.loads(webhooks_str)
 
 
 WEBHOOKS = _get_webhooks()
+
+
+def get_available_channels() -> list[str]:
+    """
+    Retrieve the list of available Slack channels
+
+    Returns:
+        A list of strings representing available Slack channels
+    """
+    return list(WEBHOOKS.keys())
 
 
 def send_message(content: str, channel: Optional[str] = None) -> str:
