@@ -47,13 +47,19 @@ def send_message(content: str, channel: Optional[str] = None) -> str:
     """
 
     webhook = None
-    if channel is None:
-        if isinstance(WEBHOOKS, str):
-            webhook = WEBHOOKS
-        else:
+    if isinstance(WEBHOOKS, str):
+        webhook = WEBHOOKS
+        if not webhook:
+            raise ValueError("SLACK_WEBHOOKS is empty.")
+    elif channel is None:
+        try:
             webhook = list(WEBHOOKS.values())[0]
+        except IndexError:
+            raise ValueError("SLACK_WEBHOOKS is empty or has no values.")
     else:
-        webhook = WEBHOOKS[channel]
+        webhook = WEBHOOKS.get(channel)
+        if webhook is None:
+            raise ValueError(f"No webhook configured for channel '{channel}' in SLACK_WEBHOOKS.")
 
     body = {
         "blocks": [
