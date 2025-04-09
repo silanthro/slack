@@ -1,0 +1,7 @@
+[index]
+
+description = "A tool to send Slack messages."
+
+tools = [
+    "slack.send_message",
+]
