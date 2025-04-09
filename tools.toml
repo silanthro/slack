@@ -3,5 +3,6 @@
 description = "A tool to send Slack messages."
 
 tools = [
+    "slack.get_available_channels",
     "slack.send_message",
 ]
