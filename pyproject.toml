@@ -1,5 +1,5 @@
 [project]
-name = "silanthro/slack"
+name = "slack"
 version = "0.1.0"
 description = "A tool to send Slack messages."
 readme = "README.md"
