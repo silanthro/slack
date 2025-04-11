@@ -2,7 +2,10 @@ import json
 import os
 from typing import Optional
 
+import mistletoe
 import requests
+
+from mrkdwn import MrkdwnRenderer
 
 
 def _get_webhooks() -> dict:
@@ -30,28 +33,13 @@ def send_message(content: str, channel: Optional[str] = None) -> str:
     Send a Slack message
 
     Args:
-    - content (str): Message content, supports Slack mrkdwn syntax (see below)
+    - content (str): Message content, supports Markdown syntax
     - channel (Optional[str]): Channel name, defaults to None, which will send the message to the default channel
         If multiple channels are provided, selects the first
 
     Returns:
         If message is successful, returns "Message sent"
         Otherwise, returns the error message as a string
-
-    On mrkdwn syntax:
-    _italic_ will produce italicized text
-    *bold* will produce bold text
-    ~strike~ will produce strikethrough text
-    Highlight text as a block quote by using the > character at the beginning of one or more lines
-    Highlight inline code using single backticks, or multi-line code blocks using 3 backticks
-    Links:
-        Links should be formatted like this: <http://www.example.com|This message is a link>
-        URLs with spaces will break, so we recommend that you remove any spaces from your URL links.
-    Escape characters:
-        Slack uses &, <, and > as control characters for special parsing in text objects, so they must be converted to HTML entities.
-        & -> &amp;
-        < -> &lt;
-        > -> &gt;
     """
 
     try:
@@ -69,7 +57,7 @@ def send_message(content: str, channel: Optional[str] = None) -> str:
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": content,
+                        "text": mistletoe.markdown(content, MrkdwnRenderer),
                     },
                 },
             ],
