@@ -122,7 +122,7 @@ class MrkdwnRenderer(MarkdownRenderer):
 
     def render_heading(self, token: b.Heading, max_line_length: int) -> Iterable[str]:
         # note: no word wrapping, because atx headings always fit on a single line.
-        line = "*" * token.level
+        line = "*"
         text = next(self.span_to_lines(token.children, max_line_length=None), "")
         if text:
             line += text
