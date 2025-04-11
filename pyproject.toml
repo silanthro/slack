@@ -9,4 +9,4 @@ dependencies = [
 ]
 
 [tool.setuptools]
-py-modules = ["mrkdwn", "slack"]
+py-modules = ["slack", "md2blockkit"]

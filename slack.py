@@ -2,10 +2,9 @@ import json
 import os
 from typing import Optional
 
-import mistletoe
 import requests
 
-from mrkdwn import MrkdwnRenderer
+from md2blockkit import md2blockkit
 
 
 def _get_webhooks() -> dict:
@@ -52,15 +51,7 @@ def send_message(content: str, channel: Optional[str] = None) -> str:
                 return f'Channel "{channel}" either does not exist or is unavailable. Please pass a channel from the following available list {get_available_channels()}'
 
         body = {
-            "blocks": [
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": mistletoe.markdown(content, MrkdwnRenderer),
-                    },
-                },
-            ],
+            "blocks": md2blockkit(content),
         }
 
         requests.post(
