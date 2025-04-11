@@ -9,4 +9,4 @@ dependencies = [
 ]
 
 [tool.setuptools]
-py-modules = ["mrkdwn", "notion"]
+py-modules = ["mrkdwn", "slack"]
