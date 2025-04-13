@@ -63,7 +63,7 @@ def spans2blocks(spans: list[s.SpanToken]):
                 children = [
                     {
                         "type": "text",
-                        "text": span.content,
+                        "text": span.content or " ",
                     }
                 ]
             # Handle style
@@ -112,7 +112,7 @@ def heading2blockkit(block: b.Heading):
                         "elements": [
                             {
                                 "type": "text",
-                                "text": block.content,
+                                "text": block.content or " ",
                                 "style": {"bold": True},
                             },
                         ],
@@ -184,18 +184,13 @@ def listitem2blockkit(block: b.ListItem, style="bullet", indent=0):
         data["children"] = p_images + list2blockkit(block.children[1])
     blocks = [
         {
-            "type": "rich_text",
+            "type": "rich_text_list",
+            "style": style,
+            "indent": indent,
             "elements": [
                 {
-                    "type": "rich_text_list",
-                    "style": style,
-                    "indent": indent,
-                    "elements": [
-                        {
-                            "type": "rich_text_section",
-                            "elements": p_text,
-                        }
-                    ],
+                    "type": "rich_text_section",
+                    "elements": p_text,
                 }
             ],
         }
@@ -213,7 +208,15 @@ def list2blockkit(block: b.List, indent=0):
             style="ordered" if block.start else "bullet",
             indent=indent,
         )
-    return items
+    if indent == 0:
+        return [
+            {
+                "type": "rich_text",
+                "elements": items,
+            }
+        ]
+    else:
+        return items
 
 
 def table2blockkit(block: b.Table):
