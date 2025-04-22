@@ -3,7 +3,6 @@ import os
 from typing import Optional
 
 import requests
-
 from md2blockkit import md2blockkit
 
 
@@ -45,6 +44,8 @@ def send_message(content: str, channel: Optional[str] = None) -> str:
         if channel is None:
             webhook = list(WEBHOOKS.values())[0]
         else:
+            if channel.startswith("#"):
+                channel = channel[1:]
             try:
                 webhook = WEBHOOKS[channel]
             except KeyError:
