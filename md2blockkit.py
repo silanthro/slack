@@ -64,6 +64,7 @@ def spans2blocks(spans: list[s.SpanToken]):
                     {
                         "type": "text",
                         "text": span.content or " ",
+                        "style": {},
                     }
                 ]
             # Handle style
